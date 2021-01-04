@@ -1,2 +1,4 @@
-package uk.co.hillion.jake.proxmox;public class ConcatenatedIntMapTest {
+package uk.co.hillion.jake.proxmox;
+
+public class ConcatenatedIntMapTest {
 }
