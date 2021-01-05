@@ -1,39 +1,40 @@
 package uk.co.hillion.jake.proxmox;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.ssl.SSLContextBuilder;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 public class ProxmoxAPI {
   private static final int PORT = 8006;
   private static final Set<String> writeMethods = Set.of("POST", "PUT", "DELETE");
+  private static final ObjectMapper objectMapper = new ObjectMapper();
 
   private final String host;
   private final String user;
   private final String tokenName;
   private final String token;
-  private final boolean verifySsl;
 
   private final CloseableHttpClient client;
   private final BasicCookieStore cookieStore;
-  private final Gson gson = new Gson();
 
   private String csrfToken, ticket;
   private LocalDateTime tokensExpire;
@@ -43,12 +44,24 @@ public class ProxmoxAPI {
     this.user = user;
     this.tokenName = tokenName;
     this.token = token;
-    this.verifySsl = verifySsl;
 
     tokensExpire = LocalDateTime.now();
 
     cookieStore = new BasicCookieStore();
-    client = HttpClientBuilder.create().setDefaultCookieStore(cookieStore).build();
+    HttpClientBuilder builder = HttpClientBuilder.create().setDefaultCookieStore(cookieStore);
+
+    if (!verifySsl) {
+      SSLContext ssl;
+      try {
+        ssl =
+            new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build();
+      } catch (GeneralSecurityException e) {
+        throw new RuntimeException(e);
+      }
+      builder.setSSLContext(ssl);
+    }
+
+    client = builder.build();
   }
 
   private StringBuilder getUrl() {
@@ -121,7 +134,7 @@ public class ProxmoxAPI {
       }
 
       HttpEntity responseEntity = response.getEntity();
-      return gson.fromJson(new InputStreamReader(responseEntity.getContent()), classOfT);
+      return objectMapper.readValue(responseEntity.getContent(), classOfT);
     }
   }
 

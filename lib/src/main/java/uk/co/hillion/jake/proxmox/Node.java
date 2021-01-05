@@ -1,6 +1,6 @@
 package uk.co.hillion.jake.proxmox;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Node {
   private String node;
@@ -60,13 +60,13 @@ public class Node {
   }
 
   public enum Status {
-    @SerializedName("unknown")
+    @JsonProperty("unknown")
     UNKNOWN,
 
-    @SerializedName("online")
+    @JsonProperty("online")
     ONLINE,
 
-    @SerializedName("offline")
+    @JsonProperty("offline")
     OFFLINE,
   }
 }

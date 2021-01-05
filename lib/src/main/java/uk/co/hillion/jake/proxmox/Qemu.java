@@ -1,6 +1,9 @@
 package uk.co.hillion.jake.proxmox;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.co.hillion.jake.proxmox.AppendKeyMaps.AppendKeyMap;
+
+import java.util.Map;
 
 public class Qemu {
   private Status status;
@@ -72,10 +75,10 @@ public class Qemu {
   }
 
   public enum Status {
-    @SerializedName("stoppped")
+    @JsonProperty("stoppped")
     STOPPED,
 
-    @SerializedName("running")
+    @JsonProperty("running")
     RUNNING,
   }
 
@@ -104,7 +107,7 @@ public class Qemu {
     public double cpulimit;
     public int cpuunits;
     public String description;
-    public String efidisk0;
+    @AppendKeyMap public Map<Integer, String> efidisk;
     public boolean force;
     public boolean freeze;
     public String hookscript;
@@ -112,7 +115,7 @@ public class Qemu {
     public String hotplug;
     public HugePages hugepages;
     public String ide0;
-    public String ipconfig0;
+    @AppendKeyMap public Map<Integer, String> ipconfig;
     public String ivshmem;
     public boolean keephugepages;
     public Keyboard keyboard;
@@ -125,150 +128,249 @@ public class Qemu {
     public int migrateSpeed;
     public String name;
     public String nameserver;
-    public String net0;
+    @AppendKeyMap public Map<Integer, String> net;
     public boolean numa;
-    public String numa0;
 
+    @AppendKeyMap
+    @JsonProperty("numa")
+    public Map<Integer, String> numaMap;
+
+    public boolean onboot;
+    public OsType ostype;
+    @AppendKeyMap public Map<Integer, String> parallel;
+    public String pool;
+    public boolean protection;
+    public boolean reboot;
+    public String rng0;
+    @AppendKeyMap public Map<Integer, String> sata;
+    @AppendKeyMap public Map<Integer, String> scsi;
+    public ScsiHardware scsihw;
+    public String searchdomain;
+    @AppendKeyMap public Map<Integer, String> serial;
+    public Integer shares;
+    public String smbios1;
+    public int smp;
+    public int sockets;
+
+    @JsonProperty("spice_enhancements")
+    public String spiceEnhancements;
+
+    public String sshkeys;
+    public boolean start;
+    public String startdate;
+    public String startup;
+    public String storage;
+    public boolean tablet;
+    public String tags;
+    public boolean tdf;
+    public boolean template;
+    public boolean unique;
+    @AppendKeyMap public Map<Integer, String> unused;
+    @AppendKeyMap public Map<Integer, String> usb;
+    public int vcpus;
+    public String vga;
+    @AppendKeyMap public Map<Integer, String> virtio;
+    public String vmgenid;
+    public String vmstatestorage;
+    public String watchdog;
 
     public enum Architecture {
-      @SerializedName("aarch64")
+      @JsonProperty("aarch64")
       AARCH64,
 
-      @SerializedName("x84_64")
+      @JsonProperty("x84_64")
       X86_64,
     }
 
     public enum Bios {
-      @SerializedName("seabios")
+      @JsonProperty("seabios")
       SEABIOS,
 
-      @SerializedName("ovmf")
+      @JsonProperty("ovmf")
       OVMF,
     }
 
     public enum CiType {
-      @SerializedName("configdrive2")
+      @JsonProperty("configdrive2")
       CONFIGDRIVE2,
 
-      @SerializedName("nocloud")
+      @JsonProperty("nocloud")
       NOCLOUD,
     }
 
     public enum HugePages {
-      @SerializedName("any")
+      @JsonProperty("any")
       ANY,
 
-      @SerializedName("2")
+      @JsonProperty("2")
       N2,
 
-      @SerializedName("1024")
+      @JsonProperty("1024")
       N1024,
     }
 
     public enum Keyboard {
-      @SerializedName("de")
+      @JsonProperty("de")
       DE,
 
-      @SerializedName("de-ch")
+      @JsonProperty("de-ch")
       DE_CH,
 
-      @SerializedName("da")
+      @JsonProperty("da")
       DA,
 
-      @SerializedName("en-gb")
+      @JsonProperty("en-gb")
       EN_GB,
 
-      @SerializedName("en-us")
+      @JsonProperty("en-us")
       EN_US,
 
-      @SerializedName("es")
+      @JsonProperty("es")
       ES,
 
-      @SerializedName("fi")
+      @JsonProperty("fi")
       FI,
 
-      @SerializedName("fr")
+      @JsonProperty("fr")
       FR,
 
-      @SerializedName("fr-be")
+      @JsonProperty("fr-be")
       FR_BE,
 
-      @SerializedName("fr-ca")
+      @JsonProperty("fr-ca")
       FR_CA,
 
-      @SerializedName("fr-ch")
+      @JsonProperty("fr-ch")
       FR_CH,
 
-      @SerializedName("hu")
+      @JsonProperty("hu")
       HU,
 
-      @SerializedName("is")
+      @JsonProperty("is")
       IS,
 
-      @SerializedName("it")
+      @JsonProperty("it")
       IT,
 
-      @SerializedName("ja")
+      @JsonProperty("ja")
       JA,
 
-      @SerializedName("lt")
+      @JsonProperty("lt")
       LT,
 
-      @SerializedName("mk")
+      @JsonProperty("mk")
       MK,
 
-      @SerializedName("nl")
+      @JsonProperty("nl")
       NL,
 
-      @SerializedName("no")
+      @JsonProperty("no")
       NO,
 
-      @SerializedName("pl")
+      @JsonProperty("pl")
       PL,
 
-      @SerializedName("pt")
+      @JsonProperty("pt")
       PT,
 
-      @SerializedName("pt-br")
+      @JsonProperty("pt-br")
       PT_BR,
 
-      @SerializedName("sv")
+      @JsonProperty("sv")
       SV,
 
-      @SerializedName("sl")
+      @JsonProperty("sl")
       SL,
 
-      @SerializedName("tr")
+      @JsonProperty("tr")
       TR,
     }
 
     public enum Lock {
-      @SerializedName("backup")
+      @JsonProperty("backup")
       BACKUP,
 
-      @SerializedName("clone")
+      @JsonProperty("clone")
       CLONE,
 
-      @SerializedName("create")
+      @JsonProperty("create")
       CREATE,
 
-      @SerializedName("migrate")
+      @JsonProperty("migrate")
       MIGRATE,
 
-      @SerializedName("rollback")
+      @JsonProperty("rollback")
       ROLLBACK,
 
-      @SerializedName("snapshot")
+      @JsonProperty("snapshot")
       SNAPSHOT,
 
-      @SerializedName("snapshot-delete")
+      @JsonProperty("snapshot-delete")
       SNAPSHOT_DELETE,
 
-      @SerializedName("suspending")
+      @JsonProperty("suspending")
       SUSPENDING,
 
-      @SerializedName("suspended")
+      @JsonProperty("suspended")
       SUSPENDED,
+    }
+
+    public enum OsType {
+      @JsonProperty("other")
+      OTHER,
+
+      @JsonProperty("wxp")
+      WXP,
+
+      @JsonProperty("w2k")
+      W2K,
+
+      @JsonProperty("w2k3")
+      W2K3,
+
+      @JsonProperty("w2k8")
+      W2K8,
+
+      @JsonProperty("wvista")
+      WVISTA,
+
+      @JsonProperty("win7")
+      WIN7,
+
+      @JsonProperty("win8")
+      WIN8,
+
+      @JsonProperty("win10")
+      WIN10,
+
+      @JsonProperty("l24")
+      L24,
+
+      @JsonProperty("l26")
+      L26,
+
+      @JsonProperty("solaris")
+      SOLARIS,
+    }
+
+    public enum ScsiHardware {
+      @JsonProperty("lsi")
+      LSI,
+
+      @JsonProperty("lsi53c810")
+      LSI53C810,
+
+      @JsonProperty("virtio-scsi-pci")
+      VIRTIO_SCSI_PCI,
+
+      @JsonProperty("virtio-scsi-single")
+      VIRTIO_SCSI_SINGLE,
+
+      @JsonProperty("megasas")
+      MEGASAS,
+
+      @JsonProperty("pvscsi")
+      PVSCSI,
     }
   }
 }
