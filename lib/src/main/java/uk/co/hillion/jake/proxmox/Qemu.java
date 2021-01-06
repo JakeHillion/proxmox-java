@@ -1,10 +1,13 @@
 package uk.co.hillion.jake.proxmox;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.co.hillion.jake.proxmox.AppendKeyMaps.AppendKeyMap;
 
 import java.util.Map;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Qemu {
   private Status status;
   private int vmid;
@@ -75,41 +78,42 @@ public class Qemu {
   }
 
   public enum Status {
-    @JsonProperty("stoppped")
+    @JsonProperty("stopped")
     STOPPED,
 
     @JsonProperty("running")
     RUNNING,
   }
 
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   public static class Create {
     public int vmid;
 
-    public boolean acpi;
+    public Boolean acpi;
     public String agent;
     public Architecture arch;
     public String archive;
     public String args;
     public String audio0;
-    public boolean autostart;
-    public int balloon;
+    public Boolean autostart;
+    public Integer balloon;
     public Bios bios;
     public String boot;
     public String bootdisk;
-    public int bwlimit;
+    public Integer bwlimit;
     public String cdrom;
     public String cicustom;
     public String cipasword;
     public CiType citype;
     public String ciuser;
-    public int cores;
+    public Integer cores;
     public String cpu;
-    public double cpulimit;
-    public int cpuunits;
+    public Double cpulimit;
+    public Integer cpuunits;
     public String description;
     @AppendKeyMap public Map<Integer, String> efidisk;
-    public boolean force;
-    public boolean freeze;
+    public Boolean force;
+    public Boolean freeze;
     public String hookscript;
     public String hostpci0;
     public String hotplug;
@@ -117,30 +121,30 @@ public class Qemu {
     public String ide0;
     @AppendKeyMap public Map<Integer, String> ipconfig;
     public String ivshmem;
-    public boolean keephugepages;
+    public Boolean keephugepages;
     public Keyboard keyboard;
-    public boolean kvm;
-    public boolean localtime;
+    public Boolean kvm;
+    public Boolean localtime;
     public Lock lock;
     public String machine;
-    public int memory;
-    public float migrateDowntime;
-    public int migrateSpeed;
+    public Integer memory;
+    public Float migrateDowntime;
+    public Integer migrateSpeed;
     public String name;
     public String nameserver;
     @AppendKeyMap public Map<Integer, String> net;
-    public boolean numa;
+    public Boolean numa;
 
     @AppendKeyMap
     @JsonProperty("numa")
     public Map<Integer, String> numaMap;
 
-    public boolean onboot;
+    public Boolean onboot;
     public OsType ostype;
     @AppendKeyMap public Map<Integer, String> parallel;
     public String pool;
-    public boolean protection;
-    public boolean reboot;
+    public Boolean protection;
+    public Boolean reboot;
     public String rng0;
     @AppendKeyMap public Map<Integer, String> sata;
     @AppendKeyMap public Map<Integer, String> scsi;
@@ -149,30 +153,440 @@ public class Qemu {
     @AppendKeyMap public Map<Integer, String> serial;
     public Integer shares;
     public String smbios1;
-    public int smp;
-    public int sockets;
+    public Integer smp;
+    public Integer sockets;
 
     @JsonProperty("spice_enhancements")
     public String spiceEnhancements;
 
     public String sshkeys;
-    public boolean start;
+    public Boolean start;
     public String startdate;
     public String startup;
     public String storage;
-    public boolean tablet;
+    public Boolean tablet;
     public String tags;
-    public boolean tdf;
-    public boolean template;
-    public boolean unique;
+    public Boolean tdf;
+    public Boolean template;
+    public Boolean unique;
     @AppendKeyMap public Map<Integer, String> unused;
     @AppendKeyMap public Map<Integer, String> usb;
-    public int vcpus;
+    public Integer vcpus;
     public String vga;
     @AppendKeyMap public Map<Integer, String> virtio;
     public String vmgenid;
     public String vmstatestorage;
     public String watchdog;
+
+    public Create setVmid(int vmid) {
+      this.vmid = vmid;
+      return this;
+    }
+
+    public Create setAcpi(boolean acpi) {
+      this.acpi = acpi;
+      return this;
+    }
+
+    public Create setAgent(String agent) {
+      this.agent = agent;
+      return this;
+    }
+
+    public Create setArch(Architecture arch) {
+      this.arch = arch;
+      return this;
+    }
+
+    public Create setArchive(String archive) {
+      this.archive = archive;
+      return this;
+    }
+
+    public Create setArgs(String args) {
+      this.args = args;
+      return this;
+    }
+
+    public Create setAudio0(String audio0) {
+      this.audio0 = audio0;
+      return this;
+    }
+
+    public Create setAutostart(boolean autostart) {
+      this.autostart = autostart;
+      return this;
+    }
+
+    public Create setBalloon(int balloon) {
+      this.balloon = balloon;
+      return this;
+    }
+
+    public Create setBios(Bios bios) {
+      this.bios = bios;
+      return this;
+    }
+
+    public Create setBoot(String boot) {
+      this.boot = boot;
+      return this;
+    }
+
+    public Create setBootdisk(String bootdisk) {
+      this.bootdisk = bootdisk;
+      return this;
+    }
+
+    public Create setBwlimit(int bwlimit) {
+      this.bwlimit = bwlimit;
+      return this;
+    }
+
+    public Create setCdrom(String cdrom) {
+      this.cdrom = cdrom;
+      return this;
+    }
+
+    public Create setCicustom(String cicustom) {
+      this.cicustom = cicustom;
+      return this;
+    }
+
+    public Create setCipasword(String cipasword) {
+      this.cipasword = cipasword;
+      return this;
+    }
+
+    public Create setCitype(CiType citype) {
+      this.citype = citype;
+      return this;
+    }
+
+    public Create setCiuser(String ciuser) {
+      this.ciuser = ciuser;
+      return this;
+    }
+
+    public Create setCores(int cores) {
+      this.cores = cores;
+      return this;
+    }
+
+    public Create setCpu(String cpu) {
+      this.cpu = cpu;
+      return this;
+    }
+
+    public Create setCpulimit(double cpulimit) {
+      this.cpulimit = cpulimit;
+      return this;
+    }
+
+    public Create setCpuunits(int cpuunits) {
+      this.cpuunits = cpuunits;
+      return this;
+    }
+
+    public Create setDescription(String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Create setEfidisk(Map<Integer, String> efidisk) {
+      this.efidisk = efidisk;
+      return this;
+    }
+
+    public Create setForce(boolean force) {
+      this.force = force;
+      return this;
+    }
+
+    public Create setFreeze(boolean freeze) {
+      this.freeze = freeze;
+      return this;
+    }
+
+    public Create setHookscript(String hookscript) {
+      this.hookscript = hookscript;
+      return this;
+    }
+
+    public Create setHostpci0(String hostpci0) {
+      this.hostpci0 = hostpci0;
+      return this;
+    }
+
+    public Create setHotplug(String hotplug) {
+      this.hotplug = hotplug;
+      return this;
+    }
+
+    public Create setHugepages(HugePages hugepages) {
+      this.hugepages = hugepages;
+      return this;
+    }
+
+    public Create setIde0(String ide0) {
+      this.ide0 = ide0;
+      return this;
+    }
+
+    public Create setIpconfig(Map<Integer, String> ipconfig) {
+      this.ipconfig = ipconfig;
+      return this;
+    }
+
+    public Create setIvshmem(String ivshmem) {
+      this.ivshmem = ivshmem;
+      return this;
+    }
+
+    public Create setKeephugepages(boolean keephugepages) {
+      this.keephugepages = keephugepages;
+      return this;
+    }
+
+    public Create setKeyboard(Keyboard keyboard) {
+      this.keyboard = keyboard;
+      return this;
+    }
+
+    public Create setKvm(boolean kvm) {
+      this.kvm = kvm;
+      return this;
+    }
+
+    public Create setLocaltime(boolean localtime) {
+      this.localtime = localtime;
+      return this;
+    }
+
+    public Create setLock(Lock lock) {
+      this.lock = lock;
+      return this;
+    }
+
+    public Create setMachine(String machine) {
+      this.machine = machine;
+      return this;
+    }
+
+    public Create setMemory(int memory) {
+      this.memory = memory;
+      return this;
+    }
+
+    public Create setMigrateDowntime(float migrateDowntime) {
+      this.migrateDowntime = migrateDowntime;
+      return this;
+    }
+
+    public Create setMigrateSpeed(int migrateSpeed) {
+      this.migrateSpeed = migrateSpeed;
+      return this;
+    }
+
+    public Create setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Create setNameserver(String nameserver) {
+      this.nameserver = nameserver;
+      return this;
+    }
+
+    public Create setNet(Map<Integer, String> net) {
+      this.net = net;
+      return this;
+    }
+
+    public Create setNuma(boolean numa) {
+      this.numa = numa;
+      return this;
+    }
+
+    public Create setNumaMap(Map<Integer, String> numaMap) {
+      this.numaMap = numaMap;
+      return this;
+    }
+
+    public Create setOnboot(boolean onboot) {
+      this.onboot = onboot;
+      return this;
+    }
+
+    public Create setOstype(OsType ostype) {
+      this.ostype = ostype;
+      return this;
+    }
+
+    public Create setParallel(Map<Integer, String> parallel) {
+      this.parallel = parallel;
+      return this;
+    }
+
+    public Create setPool(String pool) {
+      this.pool = pool;
+      return this;
+    }
+
+    public Create setProtection(boolean protection) {
+      this.protection = protection;
+      return this;
+    }
+
+    public Create setReboot(boolean reboot) {
+      this.reboot = reboot;
+      return this;
+    }
+
+    public Create setRng0(String rng0) {
+      this.rng0 = rng0;
+      return this;
+    }
+
+    public Create setSata(Map<Integer, String> sata) {
+      this.sata = sata;
+      return this;
+    }
+
+    public Create setScsi(Map<Integer, String> scsi) {
+      this.scsi = scsi;
+      return this;
+    }
+
+    public Create setScsihw(ScsiHardware scsihw) {
+      this.scsihw = scsihw;
+      return this;
+    }
+
+    public Create setSearchdomain(String searchdomain) {
+      this.searchdomain = searchdomain;
+      return this;
+    }
+
+    public Create setSerial(Map<Integer, String> serial) {
+      this.serial = serial;
+      return this;
+    }
+
+    public Create setShares(Integer shares) {
+      this.shares = shares;
+      return this;
+    }
+
+    public Create setSmbios1(String smbios1) {
+      this.smbios1 = smbios1;
+      return this;
+    }
+
+    public Create setSmp(int smp) {
+      this.smp = smp;
+      return this;
+    }
+
+    public Create setSockets(int sockets) {
+      this.sockets = sockets;
+      return this;
+    }
+
+    public Create setSpiceEnhancements(String spiceEnhancements) {
+      this.spiceEnhancements = spiceEnhancements;
+      return this;
+    }
+
+    public Create setSshkeys(String sshkeys) {
+      this.sshkeys = sshkeys;
+      return this;
+    }
+
+    public Create setStart(boolean start) {
+      this.start = start;
+      return this;
+    }
+
+    public Create setStartdate(String startdate) {
+      this.startdate = startdate;
+      return this;
+    }
+
+    public Create setStartup(String startup) {
+      this.startup = startup;
+      return this;
+    }
+
+    public Create setStorage(String storage) {
+      this.storage = storage;
+      return this;
+    }
+
+    public Create setTablet(boolean tablet) {
+      this.tablet = tablet;
+      return this;
+    }
+
+    public Create setTags(String tags) {
+      this.tags = tags;
+      return this;
+    }
+
+    public Create setTdf(boolean tdf) {
+      this.tdf = tdf;
+      return this;
+    }
+
+    public Create setTemplate(boolean template) {
+      this.template = template;
+      return this;
+    }
+
+    public Create setUnique(boolean unique) {
+      this.unique = unique;
+      return this;
+    }
+
+    public Create setUnused(Map<Integer, String> unused) {
+      this.unused = unused;
+      return this;
+    }
+
+    public Create setUsb(Map<Integer, String> usb) {
+      this.usb = usb;
+      return this;
+    }
+
+    public Create setVcpus(int vcpus) {
+      this.vcpus = vcpus;
+      return this;
+    }
+
+    public Create setVga(String vga) {
+      this.vga = vga;
+      return this;
+    }
+
+    public Create setVirtio(Map<Integer, String> virtio) {
+      this.virtio = virtio;
+      return this;
+    }
+
+    public Create setVmgenid(String vmgenid) {
+      this.vmgenid = vmgenid;
+      return this;
+    }
+
+    public Create setVmstatestorage(String vmstatestorage) {
+      this.vmstatestorage = vmstatestorage;
+      return this;
+    }
+
+    public Create setWatchdog(String watchdog) {
+      this.watchdog = watchdog;
+      return this;
+    }
 
     public enum Architecture {
       @JsonProperty("aarch64")

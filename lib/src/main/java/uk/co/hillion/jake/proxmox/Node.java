@@ -1,17 +1,22 @@
 package uk.co.hillion.jake.proxmox;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Node {
   private String node;
   private Status status;
 
   private double cpu;
   private String level;
-  private int maxCpu;
-  private long maxMem;
+  private int maxcpu;
+  private long maxmem;
   private long mem;
+
+  @JsonProperty("ssl_fingerprint")
   private String sslFingerprint;
+
   private long uptime;
 
   /** @return The cluster node name. */
@@ -35,13 +40,13 @@ public class Node {
   }
 
   /** @return Number of available CPUs. */
-  public int getMaxCpu() {
-    return maxCpu;
+  public int getMaxcpu() {
+    return maxcpu;
   }
 
   /** @return Number of available memory in bytes. */
-  public long getMaxMem() {
-    return maxMem;
+  public long getMaxmem() {
+    return maxmem;
   }
 
   /** @return Used memory in bytes. */

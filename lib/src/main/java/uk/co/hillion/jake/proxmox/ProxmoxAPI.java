@@ -2,30 +2,23 @@ package uk.co.hillion.jake.proxmox;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.entity.BufferedHttpEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.cookie.BasicClientCookie;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.ssl.SSLContextBuilder;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Set;
 
 public class ProxmoxAPI {
   private static final int PORT = 8006;
-  private static final Set<String> writeMethods = Set.of("POST", "PUT", "DELETE");
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
   private final String host;
@@ -34,10 +27,6 @@ public class ProxmoxAPI {
   private final String token;
 
   private final CloseableHttpClient client;
-  private final BasicCookieStore cookieStore;
-
-  private String csrfToken, ticket;
-  private LocalDateTime tokensExpire;
 
   public ProxmoxAPI(String host, String user, String tokenName, String token, boolean verifySsl) {
     this.host = host;
@@ -45,10 +34,7 @@ public class ProxmoxAPI {
     this.tokenName = tokenName;
     this.token = token;
 
-    tokensExpire = LocalDateTime.now();
-
-    cookieStore = new BasicCookieStore();
-    HttpClientBuilder builder = HttpClientBuilder.create().setDefaultCookieStore(cookieStore);
+    HttpClientBuilder builder = HttpClientBuilder.create();
 
     if (!verifySsl) {
       SSLContext ssl;
@@ -72,69 +58,38 @@ public class ProxmoxAPI {
         .append("/api2/json/");
   }
 
-  private void refreshTokens() throws IOException {
-    class Response {
-      Data data;
-
-      class Data {
-        private String CSRFPreventionToken;
-        private String ticket;
-        private String username;
-      }
-    }
-
-    HttpPost request = new HttpPost(getUrl().append("access/ticket").toString());
-    request.setEntity(
-        new UrlEncodedFormEntity(
-            List.of(
-                new BasicNameValuePair("username", user),
-                new BasicNameValuePair("password", token))));
-
-    Response response = executeRequest(request, Response.class, false);
-
-    csrfToken = response.data.CSRFPreventionToken;
-    ticket = response.data.ticket;
-
-    tokensExpire = LocalDateTime.now();
+  private String getAuthorizationHeader() {
+    return String.format("PVEAPIToken=%s!%s=%s", this.user, this.tokenName, this.token);
   }
 
-  private String getTicket() throws IOException {
-    if (tokensExpire.isBefore(LocalDateTime.now().plus(5, ChronoUnit.MINUTES))) {
-      refreshTokens();
-    }
+  private <T> T executeRequest(HttpPost request, Class<T> classOfT, Object body) throws IOException {
+    StringEntity jsonBody = new StringEntity(objectMapper.writeValueAsString(body));
+    jsonBody.setContentType("application/json");
+    request.setEntity(jsonBody);
 
-    return ticket;
-  }
-
-  private String getCsrfToken() throws IOException {
-    if (tokensExpire.isBefore(LocalDateTime.now().plus(5, ChronoUnit.MINUTES))) {
-      refreshTokens();
-    }
-
-    return csrfToken;
+    return executeRequest(request, classOfT);
   }
 
   private <T> T executeRequest(HttpUriRequest request, Class<T> classOfT) throws IOException {
-    return executeRequest(request, classOfT, true);
-  }
-
-  private <T> T executeRequest(HttpUriRequest request, Class<T> classOfT, boolean ticket)
-      throws IOException {
-    if (ticket) {
-      cookieStore.addCookie(new BasicClientCookie("PVEAuthCookie", getTicket()));
-      if (writeMethods.contains(request.getMethod())) {
-        request.addHeader("CSRFPreventionToken", getCsrfToken());
-      }
-    }
+    System.out.println(getAuthorizationHeader());
+    request.addHeader("Authorization", getAuthorizationHeader());
 
     try (CloseableHttpResponse response = client.execute(request)) {
       int statusCode = response.getStatusLine().getStatusCode();
       if (statusCode < 200 || statusCode > 300) {
+        if (statusCode == 400) {
+          String resp = new String(response.getEntity().getContent().readAllBytes());
+          System.out.println(resp);
+        }
         throw new BadStatusException(statusCode);
       }
 
       HttpEntity responseEntity = response.getEntity();
-      return objectMapper.readValue(responseEntity.getContent(), classOfT);
+
+      return objectMapper
+          .reader()
+          .withRootName("data")
+          .readValue(responseEntity.getContent(), classOfT);
     }
   }
 
@@ -142,8 +97,12 @@ public class ProxmoxAPI {
     return new NodesApi();
   }
 
+  public NodesApi.NodeApi node(String node) {
+    return nodes().node(node);
+  }
+
   public class NodesApi {
-    public StringBuilder getUrl() {
+    private StringBuilder getUrl() {
       return ProxmoxAPI.this.getUrl().append("nodes/");
     }
 
@@ -153,8 +112,7 @@ public class ProxmoxAPI {
     }
 
     public Node get(String node) throws IOException {
-      HttpGet request = new HttpGet(getUrl().append(node).toString());
-      return executeRequest(request, Node.class);
+      return node(node).get();
     }
 
     public NodeApi node(String node) {
@@ -164,11 +122,11 @@ public class ProxmoxAPI {
     public class NodeApi {
       private final String node;
 
-      NodeApi(String node) {
+      private NodeApi(String node) {
         this.node = node;
       }
 
-      public StringBuilder getUrl() {
+      private StringBuilder getUrl() {
         return NodesApi.this.getUrl().append(node).append('/');
       }
 
@@ -177,12 +135,12 @@ public class ProxmoxAPI {
         return executeRequest(request, Node.class);
       }
 
-      public QemusApi qemu() {
+      public QemusApi qemus() {
         return new QemusApi();
       }
 
       public class QemusApi {
-        public StringBuilder getUrl() {
+        private StringBuilder getUrl() {
           return NodeApi.this.getUrl().append("qemu/");
         }
 
@@ -191,9 +149,34 @@ public class ProxmoxAPI {
           return executeRequest(request, Qemu[].class);
         }
 
-        public Qemu create() throws IOException {
-          // TODO: Implement creates
-          return null;
+        public Qemu get(int qemu) throws IOException {
+          return qemu(qemu).get();
+        }
+
+        public QemuApi qemu(int qemu) {
+          return new QemuApi(qemu);
+        }
+
+        public String create(Qemu.Create spec) throws IOException {
+          HttpPost request = new HttpPost(getUrl().toString());
+          return executeRequest(request, String.class, spec);
+        }
+
+        public class QemuApi {
+          private final int qemu;
+
+          private QemuApi(int qemu) {
+            this.qemu = qemu;
+          }
+
+          private StringBuilder getUrl() {
+            return NodeApi.this.getUrl().append(qemu).append('/');
+          }
+
+          public Qemu get() throws IOException {
+            HttpGet request = new HttpGet(getUrl().toString());
+            return executeRequest(request, Qemu.class);
+          }
         }
       }
     }
