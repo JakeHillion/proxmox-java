@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AppendKeyMapsTest {
-  static Condition<String> jsonEquals(Object expected) {
+  static Condition<String> jsonEqual(Object expected) {
     JsonNode expectedTree = new ObjectMapper().valueToTree(expected);
 
     Predicate<String> pred =
@@ -38,7 +38,7 @@ public class AppendKeyMapsTest {
     String marshalled = new ObjectMapper().writeValueAsString(test);
 
     // ASSERT
-    assertThat(marshalled).is(jsonEquals(Map.of("data4", "hello world")));
+    assertThat(marshalled).is(jsonEqual(Map.of("data4", "hello world")));
   }
 
   @Test
@@ -67,7 +67,7 @@ public class AppendKeyMapsTest {
     String marshalled = new ObjectMapper().writeValueAsString(test);
 
     // ASSERT
-    assertThat(marshalled).is(jsonEquals(Map.of("data1", "value1", "data2", "value2")));
+    assertThat(marshalled).is(jsonEqual(Map.of("data1", "value1", "data2", "value2")));
   }
 
   @Test
@@ -101,7 +101,7 @@ public class AppendKeyMapsTest {
     String marshalled = new ObjectMapper().writeValueAsString(test);
 
     // ASSERT
-    assertThat(marshalled).is(jsonEquals(Map.of("data", "value", "data1", "value1")));
+    assertThat(marshalled).is(jsonEqual(Map.of("data", "value", "data1", "value1")));
   }
 
   @Test
@@ -130,7 +130,7 @@ public class AppendKeyMapsTest {
     String marshalled = new ObjectMapper().writeValueAsString(test);
 
     // ASSERT
-    assertThat(marshalled).is(jsonEquals(Map.of("data", "value", "data1", "value1")));
+    assertThat(marshalled).is(jsonEqual(Map.of("data", "value", "data1", "value1")));
   }
 
   @Test
