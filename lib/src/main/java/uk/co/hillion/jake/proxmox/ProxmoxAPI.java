@@ -2,10 +2,7 @@ package uk.co.hillion.jake.proxmox;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.*;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.StringEntity;
@@ -62,7 +59,8 @@ public class ProxmoxAPI {
     return String.format("PVEAPIToken=%s!%s=%s", this.user, this.tokenName, this.token);
   }
 
-  private <T> T executeRequest(HttpPost request, Class<T> classOfT, Object body) throws IOException {
+  private <T> T executeRequest(HttpPost request, Class<T> classOfT, Object body)
+      throws IOException {
     StringEntity jsonBody = new StringEntity(objectMapper.writeValueAsString(body));
     jsonBody.setContentType("application/json");
     request.setEntity(jsonBody);
@@ -71,16 +69,11 @@ public class ProxmoxAPI {
   }
 
   private <T> T executeRequest(HttpUriRequest request, Class<T> classOfT) throws IOException {
-    System.out.println(getAuthorizationHeader());
     request.addHeader("Authorization", getAuthorizationHeader());
 
     try (CloseableHttpResponse response = client.execute(request)) {
       int statusCode = response.getStatusLine().getStatusCode();
       if (statusCode < 200 || statusCode > 300) {
-        if (statusCode == 400) {
-          String resp = new String(response.getEntity().getContent().readAllBytes());
-          System.out.println(resp);
-        }
         throw new BadStatusException(statusCode);
       }
 
@@ -102,6 +95,8 @@ public class ProxmoxAPI {
   }
 
   public class NodesApi {
+    private NodesApi() {}
+
     private StringBuilder getUrl() {
       return ProxmoxAPI.this.getUrl().append("nodes/");
     }
@@ -139,7 +134,13 @@ public class ProxmoxAPI {
         return new QemusApi();
       }
 
+      public QemusApi.QemuApi qemu(int qemu) {
+        return qemus().qemu(qemu);
+      }
+
       public class QemusApi {
+        private QemusApi() {}
+
         private StringBuilder getUrl() {
           return NodeApi.this.getUrl().append("qemu/");
         }
@@ -170,12 +171,69 @@ public class ProxmoxAPI {
           }
 
           private StringBuilder getUrl() {
-            return NodeApi.this.getUrl().append(qemu).append('/');
+            return QemusApi.this.getUrl().append(qemu).append('/');
           }
 
           public Qemu get() throws IOException {
             HttpGet request = new HttpGet(getUrl().toString());
             return executeRequest(request, Qemu.class);
+          }
+
+          public String delete() throws IOException {
+            HttpDelete request = new HttpDelete(getUrl().toString());
+            return executeRequest(request, String.class);
+          }
+
+          public StatusApi status() {
+            return new StatusApi();
+          }
+
+          public class StatusApi {
+            private StatusApi() {}
+
+            private StringBuilder getUrl() {
+              return QemuApi.this.getUrl().append("status/");
+            }
+
+            public QemuStatus get() throws IOException {
+              HttpGet request = new HttpGet(getUrl().append("current").toString());
+              return executeRequest(request, QemuStatus.class);
+            }
+
+            public String reboot(QemuStatus.Reboot spec) throws IOException {
+              HttpPost request = new HttpPost(getUrl().append("reboot").toString());
+              return executeRequest(request, String.class, spec);
+            }
+
+            public String reset(QemuStatus.Reset spec) throws IOException {
+              HttpPost request = new HttpPost(getUrl().append("reset").toString());
+              return executeRequest(request, String.class, spec);
+            }
+
+            public String resume(QemuStatus.Resume spec) throws IOException {
+              HttpPost request = new HttpPost(getUrl().append("resume").toString());
+              return executeRequest(request, String.class, spec);
+            }
+
+            public String shutdown(QemuStatus.Shutdown spec) throws IOException {
+              HttpPost request = new HttpPost(getUrl().append("shutdown").toString());
+              return executeRequest(request, String.class, spec);
+            }
+
+            public String start(QemuStatus.Start spec) throws IOException {
+              HttpPost request = new HttpPost(getUrl().append("start").toString());
+              return executeRequest(request, String.class, spec);
+            }
+
+            public String stop(QemuStatus.Stop spec) throws IOException {
+              HttpPost request = new HttpPost(getUrl().append("stop").toString());
+              return executeRequest(request, String.class, spec);
+            }
+
+            public String suspend(QemuStatus.Suspend spec) throws IOException {
+              HttpPost request = new HttpPost(getUrl().append("suspend").toString());
+              return executeRequest(request, String.class, spec);
+            }
           }
         }
       }
