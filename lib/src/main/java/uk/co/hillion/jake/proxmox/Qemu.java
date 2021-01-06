@@ -787,4 +787,84 @@ public class Qemu {
       PVSCSI,
     }
   }
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public static class Clone {
+    public int newid;
+
+    public Integer bwlimit;
+    public String description;
+    public DiskFormat format;
+    public Boolean full;
+    public String name;
+    public String pool;
+    public String snapname;
+    public String storage;
+    public String target;
+
+    public Clone setNewid(int newid) {
+      this.newid = newid;
+      return this;
+    }
+
+    public Clone setBwlimit(Integer bwlimit) {
+      this.bwlimit = bwlimit;
+      return this;
+    }
+
+    public Clone setDescription(String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Clone setFormat(DiskFormat format) {
+      this.format = format;
+      return this;
+    }
+
+    public Clone setFull(Boolean full) {
+      this.full = full;
+      return this;
+    }
+
+    public Clone setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Clone setPool(String pool) {
+      this.pool = pool;
+      return this;
+    }
+
+    public Clone setSnapname(String snapname) {
+      this.snapname = snapname;
+      return this;
+    }
+
+    public Clone setStorage(String storage) {
+      this.storage = storage;
+      return this;
+    }
+
+    public Clone setTarget(String target) {
+      this.target = target;
+      return this;
+    }
+
+    public Clone(int newid) {
+      this.newid = newid;
+    }
+
+    public enum DiskFormat {
+      @JsonProperty("raw")
+      RAW,
+
+      @JsonProperty("qcow2")
+      QCOW2,
+
+      @JsonProperty("vmdk")
+      VMDK,
+    }
+  }
 }

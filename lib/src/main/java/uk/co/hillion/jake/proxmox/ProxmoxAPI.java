@@ -184,6 +184,11 @@ public class ProxmoxAPI {
             return executeRequest(request, String.class);
           }
 
+          public String clone(Qemu.Clone spec) throws IOException {
+            HttpPost request = new HttpPost(getUrl().append("clone").toString());
+            return executeRequest(request, String.class, spec);
+          }
+
           public StatusApi status() {
             return new StatusApi();
           }
