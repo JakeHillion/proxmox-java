@@ -1,11 +1,6 @@
 package uk.co.hillion.jake.proxmox;
 
-import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.*;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,18 +17,17 @@ import java.util.regex.Pattern;
 
 public interface AppendKeyMaps {
   @JsonAnyGetter
-  default Map<String, Object> getProperties() throws JsonProcessingException {
+  default Map<String, Object> getProperties() {
     Map<String, Object> out = new HashMap<>();
 
     Properties p = Properties.of(this.getClass());
     for (Field field : p.getFields()) {
-      // TODO: Use the Jackson logic to get the name
-      String fieldName = field.getName();
+      String fieldName = p.getFieldName(field);
 
       try {
-        Map fieldVal = (Map) field.get(this);
+        Map<?, ?> fieldVal = (Map<?, ?>) field.get(this);
         for (Object obj : fieldVal.entrySet()) {
-          Map.Entry entry = (Map.Entry) obj;
+          Map.Entry<?, ?> entry = (Map.Entry<?, ?>) obj;
           out.put(String.format("%s%s", fieldName, entry.getKey()), entry.getValue());
         }
       } catch (IllegalAccessException e) {
@@ -81,18 +75,31 @@ public interface AppendKeyMaps {
 
   class Properties {
     private final Map<Field, Pattern> patternFieldMap;
+    private final Map<Field, String> fieldNames;
 
-    private Properties(Map<Field, Pattern> patternFieldMap) {
+    private Properties(Map<Field, Pattern> patternFieldMap, Map<Field, String> fieldNames) {
       this.patternFieldMap = Map.copyOf(patternFieldMap);
+      this.fieldNames = fieldNames;
     }
 
     private static <T> Properties of(Class<T> clazz) {
-      Map<Field, Pattern> map = new HashMap<>();
+      Map<Field, String> fieldNames = new HashMap<>();
+      Map<Field, Pattern> patternFieldMap = new HashMap<>();
 
-      for (Field field : clazz.getFields()) {
+      for (Field field : clazz.getDeclaredFields()) {
         if (field.isAnnotationPresent(AppendKeyMap.class)) {
-          // TODO: Use the Jackson logic to get the name
-          String fieldName = field.getName();
+          String fieldName;
+          if (field.isAnnotationPresent(JsonProperty.class)) {
+            JsonProperty prop = field.getAnnotation(JsonProperty.class);
+            if (prop.value().equals(JsonProperty.USE_DEFAULT_NAME)) {
+              fieldName = field.getName();
+            } else {
+              fieldName = prop.value();
+            }
+          } else {
+            fieldName = field.getName();
+          }
+          fieldNames.put(field, fieldName);
 
           if (!field.getType().isAssignableFrom(Map.class)) {
             throw new RuntimeException("field not a map");
@@ -109,11 +116,11 @@ public interface AppendKeyMaps {
             pattern = Pattern.compile(String.format("%s(.+)", fieldName));
           }
 
-          map.put(field, pattern);
+          patternFieldMap.put(field, pattern);
         }
       }
 
-      return new Properties(map);
+      return new Properties(patternFieldMap, fieldNames);
     }
 
     private Map.Entry<Field, String> getFieldMatch(String key) {
@@ -124,6 +131,10 @@ public interface AppendKeyMaps {
         }
       }
       return null;
+    }
+
+    private String getFieldName(Field field) {
+      return fieldNames.get(field);
     }
 
     private Collection<Field> getFields() {
