@@ -192,6 +192,10 @@ public class ProxmoxAPI {
             return new StatusApi();
           }
 
+          public ConfigApi config() {
+            return new ConfigApi();
+          }
+
           public class StatusApi {
             private StatusApi() {}
 
