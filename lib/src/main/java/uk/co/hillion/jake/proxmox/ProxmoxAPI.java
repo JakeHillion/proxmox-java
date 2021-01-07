@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -59,7 +58,7 @@ public class ProxmoxAPI {
     return String.format("PVEAPIToken=%s!%s=%s", this.user, this.tokenName, this.token);
   }
 
-  private <T> T executeRequest(HttpPost request, Class<T> classOfT, Object body)
+  private <T> T executeRequest(HttpEntityEnclosingRequestBase request, Class<T> classOfT, Object body)
       throws IOException {
     StringEntity jsonBody = new StringEntity(objectMapper.writeValueAsString(body));
     jsonBody.setContentType("application/json");
@@ -101,7 +100,7 @@ public class ProxmoxAPI {
       return ProxmoxAPI.this.getUrl().append("nodes/");
     }
 
-    public Node[] index() throws IOException {
+    public Node[] get() throws IOException {
       HttpGet request = new HttpGet(getUrl().toString());
       return executeRequest(request, Node[].class);
     }
@@ -145,7 +144,7 @@ public class ProxmoxAPI {
           return NodeApi.this.getUrl().append("qemu/");
         }
 
-        public Qemu[] index() throws IOException {
+        public Qemu[] get() throws IOException {
           HttpGet request = new HttpGet(getUrl().toString());
           return executeRequest(request, Qemu[].class);
         }
@@ -154,13 +153,13 @@ public class ProxmoxAPI {
           return qemu(qemu).get();
         }
 
-        public QemuApi qemu(int qemu) {
-          return new QemuApi(qemu);
-        }
-
-        public String create(Qemu.Create spec) throws IOException {
+        public String post(Qemu.Create spec) throws IOException {
           HttpPost request = new HttpPost(getUrl().toString());
           return executeRequest(request, String.class, spec);
+        }
+
+        public QemuApi qemu(int qemu) {
+          return new QemuApi(qemu);
         }
 
         public class QemuApi {
@@ -238,6 +237,30 @@ public class ProxmoxAPI {
             public String suspend(QemuStatus.Suspend spec) throws IOException {
               HttpPost request = new HttpPost(getUrl().append("suspend").toString());
               return executeRequest(request, String.class, spec);
+            }
+          }
+
+          public class ConfigApi {
+            private ConfigApi() {}
+
+            private StringBuilder getUrl() {
+              return QemuApi.this.getUrl().append("/status");
+            }
+
+            public QemuConfig get() throws IOException {
+              // TODO: Add support for get parameters
+              HttpGet request = new HttpGet(getUrl().toString());
+              return executeRequest(request, QemuConfig.class);
+            }
+
+            public String post(QemuConfig.AsyncUpdate spec) throws IOException {
+              HttpPost request = new HttpPost(getUrl().toString());
+              return executeRequest(request, String.class, spec);
+            }
+
+            public void put(QemuConfig.SyncUpdate spec) throws IOException {
+              HttpPut request = new HttpPut(getUrl().toString());
+              executeRequest(request, void.class, spec);
             }
           }
         }

@@ -791,7 +791,6 @@ public class Qemu {
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public static class Clone {
     public int newid;
-
     public Integer bwlimit;
     public String description;
     public DiskFormat format;
@@ -801,6 +800,10 @@ public class Qemu {
     public String snapname;
     public String storage;
     public String target;
+
+    public Clone(int newid) {
+      this.newid = newid;
+    }
 
     public Clone setNewid(int newid) {
       this.newid = newid;
@@ -850,10 +853,6 @@ public class Qemu {
     public Clone setTarget(String target) {
       this.target = target;
       return this;
-    }
-
-    public Clone(int newid) {
-      this.newid = newid;
     }
 
     public enum DiskFormat {
