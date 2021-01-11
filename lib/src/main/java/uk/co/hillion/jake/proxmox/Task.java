@@ -9,6 +9,14 @@ public class Task {
     private int pid;
     private EStatus status;
 
+    public int getPid() {
+      return pid;
+    }
+
+    public EStatus getStatus() {
+      return status;
+    }
+
     public enum EStatus {
       @JsonProperty("running")
       RUNNING,
