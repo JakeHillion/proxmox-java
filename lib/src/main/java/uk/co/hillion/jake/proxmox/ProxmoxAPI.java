@@ -300,7 +300,7 @@ public class ProxmoxAPI {
             return TasksApi.this.getUrl().append(upid).append('/');
           }
 
-          private Task.Status status() throws IOException {
+          public Task.Status status() throws IOException {
             HttpGet request = new HttpGet(getUrl().append("status").toString());
             return executeRequest(request, Task.Status.class);
           }
