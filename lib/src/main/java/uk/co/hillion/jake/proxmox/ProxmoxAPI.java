@@ -58,8 +58,8 @@ public class ProxmoxAPI {
     return String.format("PVEAPIToken=%s!%s=%s", this.user, this.tokenName, this.token);
   }
 
-  private <T> T executeRequest(HttpEntityEnclosingRequestBase request, Class<T> classOfT, Object body)
-      throws IOException {
+  private <T> T executeRequest(
+      HttpEntityEnclosingRequestBase request, Class<T> classOfT, Object body) throws IOException {
     StringEntity jsonBody = new StringEntity(objectMapper.writeValueAsString(body));
     jsonBody.setContentType("application/json");
     request.setEntity(jsonBody);
@@ -135,6 +135,14 @@ public class ProxmoxAPI {
 
       public QemusApi.QemuApi qemu(int qemu) {
         return qemus().qemu(qemu);
+      }
+
+      public TasksApi tasks() {
+        return new TasksApi();
+      }
+
+      public TasksApi.TaskApi task(String upid) {
+        return tasks().task(upid);
       }
 
       public class QemusApi {
@@ -266,6 +274,35 @@ public class ProxmoxAPI {
               HttpPut request = new HttpPut(getUrl().toString());
               executeRequest(request, void.class, spec);
             }
+          }
+        }
+      }
+
+      public class TasksApi {
+        private TasksApi() {}
+
+        private StringBuilder getUrl() {
+          return NodeApi.this.getUrl().append("/tasks");
+        }
+
+        public TaskApi task(String upid) {
+          return new TaskApi(upid);
+        }
+
+        public class TaskApi {
+          private final String upid;
+
+          private TaskApi(String upid) {
+            this.upid = upid;
+          }
+
+          private StringBuilder getUrl() {
+            return TasksApi.this.getUrl().append(upid).append('/');
+          }
+
+          private Task.Status status() throws IOException {
+            HttpGet request = new HttpGet(getUrl().append("status").toString());
+            return executeRequest(request, Task.Status.class);
           }
         }
       }
