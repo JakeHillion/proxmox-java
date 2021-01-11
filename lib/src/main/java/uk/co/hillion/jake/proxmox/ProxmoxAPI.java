@@ -282,7 +282,7 @@ public class ProxmoxAPI {
         private TasksApi() {}
 
         private StringBuilder getUrl() {
-          return NodeApi.this.getUrl().append("/tasks");
+          return NodeApi.this.getUrl().append("tasks/");
         }
 
         public TaskApi task(String upid) {
