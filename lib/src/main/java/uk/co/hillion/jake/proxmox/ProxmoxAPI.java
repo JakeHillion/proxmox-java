@@ -260,7 +260,7 @@ public class ProxmoxAPI {
             private ConfigApi() {}
 
             private StringBuilder getUrl() {
-              return QemuApi.this.getUrl().append("/status");
+              return QemuApi.this.getUrl().append("/config");
             }
 
             public QemuConfig get() throws IOException {
