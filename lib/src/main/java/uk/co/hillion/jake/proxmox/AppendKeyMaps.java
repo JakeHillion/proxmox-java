@@ -26,6 +26,7 @@ public interface AppendKeyMaps {
 
       try {
         Map<?, ?> fieldVal = (Map<?, ?>) field.get(this);
+        if (fieldVal == null) continue;
         for (Object obj : fieldVal.entrySet()) {
           Map.Entry<?, ?> entry = (Map.Entry<?, ?>) obj;
           out.put(String.format("%s%s", fieldName, entry.getKey()), entry.getValue());
@@ -86,7 +87,7 @@ public interface AppendKeyMaps {
       Map<Field, String> fieldNames = new HashMap<>();
       Map<Field, Pattern> patternFieldMap = new HashMap<>();
 
-      for (Field field : clazz.getDeclaredFields()) {
+      for (Field field : clazz.getFields()) {
         if (field.isAnnotationPresent(AppendKeyMap.class)) {
           String fieldName;
           if (field.isAnnotationPresent(JsonProperty.class)) {

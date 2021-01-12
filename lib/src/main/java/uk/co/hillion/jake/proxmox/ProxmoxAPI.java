@@ -60,7 +60,8 @@ public class ProxmoxAPI {
 
   private <T> T executeRequest(
       HttpEntityEnclosingRequestBase request, Class<T> classOfT, Object body) throws IOException {
-    StringEntity jsonBody = new StringEntity(objectMapper.writeValueAsString(body));
+    String jsonString = objectMapper.writeValueAsString(body);
+    StringEntity jsonBody = new StringEntity(jsonString);
     jsonBody.setContentType("application/json");
     request.setEntity(jsonBody);
 
