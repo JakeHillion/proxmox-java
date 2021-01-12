@@ -76,6 +76,10 @@ public class ProxmoxAPI {
         throw new BadStatusException(statusCode);
       }
 
+      if (classOfT == Void.class) {
+        return null;
+      }
+
       HttpEntity responseEntity = response.getEntity();
 
       return objectMapper
