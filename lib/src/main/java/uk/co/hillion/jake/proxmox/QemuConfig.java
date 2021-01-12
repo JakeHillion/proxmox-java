@@ -597,7 +597,7 @@ public class QemuConfig implements AppendKeyMaps {
     PVSCSI,
   }
   
-  private static abstract class BaseUpdate<T> {
+  private static abstract class BaseUpdate<T> implements AppendKeyMaps {
     protected abstract T returnThis();
     
     public Boolean acpi;
