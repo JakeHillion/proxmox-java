@@ -2,7 +2,13 @@ package uk.co.hillion.jake.proxmox;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -148,6 +154,53 @@ public class ProxmoxAPI {
 
       public TasksApi.TaskApi task(String upid) {
         return tasks().task(upid);
+      }
+
+      public NetworksApi networks() {
+        return new NetworksApi();
+      }
+
+      public NetworksApi.NetworkApi network(String network) {
+        return networks().network(network);
+      }
+
+      public class NetworksApi {
+        private NetworksApi() {}
+
+        private StringBuilder getUrl() {
+          return NodeApi.this.getUrl().append("network/");
+        }
+
+        public String put() throws IOException {
+          HttpPut request = new HttpPut(getUrl().toString());
+          return executeRequest(request, String.class);
+        }
+
+        public void post(Network.Create spec) throws IOException {
+          HttpPost request = new HttpPost(getUrl().toString());
+          executeRequest(request, Void.class, spec);
+        }
+
+        public NetworkApi network(String network) {
+          return new NetworkApi(network);
+        }
+
+        public class NetworkApi {
+          private final String network;
+
+          private NetworkApi(String network) {
+            this.network = network;
+          }
+
+          private StringBuilder getUrl() {
+            return NetworksApi.this.getUrl().append(network).append('/');
+          }
+
+          public void delete() throws IOException {
+            HttpDelete request = new HttpDelete(this.getUrl().toString());
+            executeRequest(request, Void.class);
+          }
+        }
       }
 
       public class QemusApi {
