@@ -18,6 +18,7 @@ import org.apache.http.ssl.SSLContextBuilder;
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Map;
 
 public class ProxmoxAPI {
   private static final int PORT = 8006;
@@ -174,6 +175,11 @@ public class ProxmoxAPI {
         public String put() throws IOException {
           HttpPut request = new HttpPut(getUrl().toString());
           return executeRequest(request, String.class);
+        }
+
+        public Network[] get() throws IOException {
+          HttpGet request = new HttpGet(getUrl().toString());
+          return executeRequest(request, Network[].class);
         }
 
         public void post(Network.Create spec) throws IOException {

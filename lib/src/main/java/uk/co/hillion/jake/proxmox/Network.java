@@ -1,9 +1,20 @@
 package uk.co.hillion.jake.proxmox;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Network {
+    // This is an incomplete selection of fields.
+    // Update with https://pve.proxmox.com/pve-docs/api-viewer/index.html#/nodes/{node}/network
+
+    private String iface;
+
+    public String getIface() {
+        return iface;
+    }
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Create {
         public String iface;
