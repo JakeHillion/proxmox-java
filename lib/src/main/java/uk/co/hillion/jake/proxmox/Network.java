@@ -211,7 +211,7 @@ public class Network {
             @JsonProperty("bridge")
             BRIDGE,
 
-            @JsonProperty("bridge")
+            @JsonProperty("bond")
             BOND,
 
             @JsonProperty("eth")
